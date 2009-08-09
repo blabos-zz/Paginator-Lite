@@ -1,8 +1,14 @@
 Changes
-MANIFEST
-Makefile.PL
-README
 lib/Paginator/Lite.pm
+MANIFEST			This list of files
+MANIFEST.SKIP
+README
 t/00-load.t
+t/01-constructor.t
+t/02-default_values.t
+t/03-negatives.t
+t/04-pages.t
+t/05-items.t
+t/boilerplate.t
 t/pod-coverage.t
 t/pod.t

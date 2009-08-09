@@ -1,15 +1,48 @@
 Paginator-Lite
 
-The README is used to introduce the module and provide instructions on
-how to install the module, any machine dependencies it may have (for
-example C compilers and installed libraries) and any other information
-that should be provided before the module is installed.
+This module provides a simple way to get some informations about a collection
+of data (database rows, sometimes) that may be used to make pagination
+components.
 
-A README file is required for CPAN modules since CPAN extracts the README
-file from a module distribution so that people browsing the archive
-can use it to get an idea of the module's uses. It is usually a good idea
-to provide version information here so that people can decide whether
-fixes for the module are worth downloading.
+When you handle collections of data, sometimes you don't want to retrieve or
+display all items at once. If you are working with a database, its easy
+retrieve only a portion of rows at a time using the keywords LIMIT and OFFSET.
+
+The annoying problem, is how to create navigation for all 'pages' of data.
+
+On my applications, normally I know the total number of rows, how much rows I
+want to display and what is the current page. So, since the first and last
+pages are relatively fixed, I can make a loop that iterates from first
+(normally 1) page until the last page and create the navigation.
+
+This approach works fine since I don't have too many pages to display. When
+the number of pages grow up, I get too many components polluting the
+interface. In this case, I need paginate the paginator!
+
+For this, I thought in the concept of frame. A frame is a subset of pagination
+components that are visible at this moment. So, instead of a thousand of
+buttons or links, I have a 'window' with only some of them. Something like the
+pagination at bottom of Google Search page, that displays only 20 page each
+time. Additionally, the current page is in middle of frame always that is
+possible. I like this!
+
+So, given the total number of pages (or the number of items and the number of
+items per page), the number of the current page and the frame size, I want a
+subset of pages (the number of each page) on which the current page is in the
+middle of frame, the first page on frame is something like
+(current - frame_size / 2) and the last page on frame is something like
+(current + frame_size / 2). Additionally I want know which is the first page
+(always 1), last page, previous page and next page.
+
+With these informations, I can create a view like this:
+
+    (first) (prev) 4 5 6 [7] 8 9 10 (next) (last)
+
+Usually, each time we need draw the paginator, we need calculate these values
+and check them if they are not out of range. This module does exactly this.
+
+Note: This module don't generates html. It only helps you to do this,
+providing you with information about how to generate a simple view.
 
 
 INSTALLATION
