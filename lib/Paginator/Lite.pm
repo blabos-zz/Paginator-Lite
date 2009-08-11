@@ -11,11 +11,11 @@ Paginator::Lite - A simple paginator
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 
 =head1 SYNOPSIS
@@ -28,25 +28,25 @@ components.
 
 When you handle collections of data, sometimes you don't want to retrieve or
 display all items at once. If you are working with a database, its easy
-retrieve only a portion of rows at a time using the keywords LIMIT and OFFSET.
+retrieve only a portion of rows each time using the keywords LIMIT and OFFSET.
 
 The annoying problem, is how to create navigation for all 'pages' of data.
 
-On my applications, normally I know the total number of rows, how much rows I
-want to display and what is the current page. So, since the first and last
-pages are relatively fixed, I can make a loop that iterates from first
-(normally 1) page until the last page and create the navigation.
+On my applications, normally I know the total number of rows, how much rows
+I want to display and what is the current page. So, since the first and last
+pages are relatively fixed, I can make a loop that iterates from first page
+(normally 1) until the last page and create the navigation.
 
 This approach works fine since I don't have too many pages to display. When
 the number of pages grow up, I get too many components polluting the
 interface. In this case, I need paginate the paginator!
 
-For this, I thought in the concept of frame. A frame is a subset of pagination
+For this, I think in the concept of frame. A frame is a subset of pagination
 components that are visible at this moment. So, instead of a thousand of
-buttons or links, I have a 'window' with only some of them. Something like the
-pagination at bottom of Google Search page, that displays only 20 page each
-time. Additionally, the current page is in middle of frame always that is
-possible. I like this!
+buttons or links, I have a 'window' with only some of them. Something like
+the pagination at bottom of Google Search page, that displays only 20 page
+each time. Additionally, the current page is in middle of frame always that
+is possible. I like this!
 
 So, given the total number of pages (or the number of items and the number of
 items per page), the number of the current page and the frame size, I want a
@@ -54,7 +54,7 @@ subset of pages (the number of each page) on which the current page is in the
 middle of frame, the first page on frame is something like
 (current - frame_size / 2) and the last page on frame is something like
 (current + frame_size / 2). Additionally I want know which is the first page
-(always 1), last page, previous page and next page.
+(almost always 1), last page, previous page and next page.
 
 With these informations, I can create a view like this:
 
@@ -107,7 +107,7 @@ If you pass the total number of pages, the method will ignore the number of
 items and the number of items per page (if one or both were provided).
 Otherwise, if you don't provide the number of pages, the method will try to
 calculate it using the number of items, the number of items per page or
-defaults values if you try to make a joke!
+defaults values if you don't provide any.
 
 All parameter are named as follow:
 
@@ -347,4 +347,4 @@ See http://dev.perl.org/licenses/ for more information.
 
 =cut
 
-1; # End of Paginator::Lite
+42; # End of Paginator::Lite

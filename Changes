@@ -1,7 +1,13 @@
 Revision history for Paginator-Lite
 
+0.02    2009-08-11 00:30
+            - Replace ExtUtils::MakeMaker by Module::Install;
+            - Fix the MANIFEST.SKIP;
+            - Fix some documentation issues;
+            - Fix the return value of module;
+
 0.01    2009-08-09 18:30
-        Created pod
-        Created methods
-        Created tests
+            - Created pod
+            - Created methods
+            - Created tests
 

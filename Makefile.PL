@@ -1,19 +1,13 @@
-use strict;
-use warnings;
-use ExtUtils::MakeMaker;
+use inc::Module::Install;
 
-WriteMakefile(
-    NAME                => 'Paginator::Lite',
-    AUTHOR              => q{Blabos de Blebe <blabos@cpan.org>},
-    VERSION_FROM        => 'lib/Paginator/Lite.pm',
-    ABSTRACT_FROM       => 'lib/Paginator/Lite.pm',
-    ($ExtUtils::MakeMaker::VERSION >= 6.3002
-      ? ('LICENSE'=> 'perl')
-      : ()),
-    PL_FILES            => {},
-    PREREQ_PM => {
-        'Test::More' => 0,
-    },
-    dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean               => { FILES => 'Paginator-Lite-*' },
-);
+name     'Paginator-Lite';
+all_from 'lib/Paginator/Lite.pm';
+author   q{Blabos de Blebe <blabos@cpan.org>};
+license  'perl';
+
+build_requires 'Test::More';
+
+auto_install;
+
+WriteAll;
+
