@@ -1,5 +1,8 @@
 Revision history for Paginator-Lite
 
+0.03    2009-08-30 22:45
+            - Undeleting inc dir
+
 0.02    2009-08-11 00:30
             - Replace ExtUtils::MakeMaker by Module::Install;
             - Fix the MANIFEST.SKIP;
