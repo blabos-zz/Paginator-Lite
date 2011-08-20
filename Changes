@@ -1,5 +1,12 @@
 Revision history for Paginator-Lite
 
+1.00    2011-08-20
+            - First official release
+            - Added args to constructor
+            - Added attribute frame_size
+            - Added accessor frame_size
+            - Changes on documentation
+
 0.03    2009-08-30 22:45
             - Undeleting inc dir
 

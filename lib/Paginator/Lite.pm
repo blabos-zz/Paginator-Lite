@@ -11,67 +11,65 @@ Paginator::Lite - A simple paginator
 
 =head1 VERSION
 
-Version 0.02
+Version 1.00
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '1.00';
 
 
 =head1 SYNOPSIS
 
-This module provides a simple way to get some informations about a collection
-of data (database rows, sometimes) that may be used to make pagination
+This module provides a simple way to get some information about a collection
+of data (rows of the database, sometimes) that can be used to build pagination
 components.
+
+    use Paginator::Lite;
+    
+    my $paginator = Paginator::Lite->new({
+        current     => 3,
+        items       => 30,
+        frame_size  => 5,
+    });
+    
+    ...
+    
+    $paginator->first       # 1
+    $paginator->last        # 6
+    $paginator->next        # 4
+    
+    
 
 =head1 DESCRIPTION
 
-When you handle collections of data, sometimes you don't want to retrieve or
-display all items at once. If you are working with a database, its easy
-retrieve only a portion of rows each time using the keywords LIMIT and OFFSET.
+When handle with huge amounts of data sometimes you want to display only a
+portion of it and provide controls to naviagte through it.
 
-The annoying problem, is how to create navigation for all 'pages' of data.
+The classic way is to provide links or buttons to next, previous and some
+pages around the current page, like this:
 
-On my applications, normally I know the total number of rows, how much rows
-I want to display and what is the current page. So, since the first and last
-pages are relatively fixed, I can make a loop that iterates from first page
-(normally 1) until the last page and create the navigation.
+    (prev)  1 2 [3] 4 5 (next)
 
-This approach works fine since I don't have too many pages to display. When
-the number of pages grow up, I get too many components polluting the
-interface. In this case, I need paginate the paginator!
+But when the number of pages grow up too much this approach may be annoying:
 
-For this, I think in the concept of frame. A frame is a subset of pagination
-components that are visible at this moment. So, instead of a thousand of
-buttons or links, I have a 'window' with only some of them. Something like
-the pagination at bottom of Google Search page, that displays only 20 page
-each time. Additionally, the current page is in middle of frame always that
-is possible. I like this!
+    (prev) 1 2 3 4 5 6 7 8 9 10 [11] 12 13 14 15 16 16 18 19 20 21 (next)
 
-So, given the total number of pages (or the number of items and the number of
-items per page), the number of the current page and the frame size, I want a
-subset of pages (the number of each page) on which the current page is in the
-middle of frame, the first page on frame is something like
-(current - frame_size / 2) and the last page on frame is something like
-(current + frame_size / 2). Additionally I want know which is the first page
-(almost always 1), last page, previous page and next page.
+So Paginator::Lite helps you calculating the numbers to feed your view loops
+and implements the concept of frame. A frame is a small portion of pages
+around the current page that will be displayed in addition to (prev), (next)
+and other permanent buttons:
 
-With these informations, I can create a view like this:
-
-    (first) (prev) 4 5 6 [7] 8 9 10 (next) (last)
-
-Usually, each time we need draw the paginator, we need calculate these values
-and check them if they are not out of range. This module does exactly this.
-
-Note: This module don't generates html. It only helps you to do this,
-providing you with information about how to generate a simple view.
-
+    (prev) 10 11 12 [13] 14 15 16 (next)
+            \                  /
+              ----- frame ----
+                7 of 21 pages
 
 =head1 METHODS
 
 =head2 new
 
-Constructor. Creates a Paginator::Lite object. Doesn't expect arguments.
+Constructor. Creates a Paginator::Lite object. May be aclled without args or
+with the same as repaginate()
 
     my $paginator = Paginator::Lite->new;
 
@@ -90,7 +88,11 @@ sub new {
         'last'      => 1,
     };
     
-    return bless $atts, $class;
+    my $paginator = bless $atts, $class;
+    $paginator->repaginate( $args )
+        if $args->{'pages'} || ( $args->{'items'} && $args->{'frame_size'} );
+    
+    return $paginator;
 }
 
 =head2 repaginate
@@ -108,6 +110,9 @@ items and the number of items per page (if one or both were provided).
 Otherwise, if you don't provide the number of pages, the method will try to
 calculate it using the number of items, the number of items per page or
 defaults values if you don't provide any.
+
+Usually you will provide the args 'current', 'frame_size' and 'pages'.
+The last one may be exchanged by the pair 'items' and 'items_per_page'.
 
 All parameter are named as follow:
 
@@ -143,23 +148,23 @@ Example:
 =cut
 
 sub repaginate {
-    my ($self, $atts) = @_;
+    my ($self, $args) = @_;
     my ($pages, $current, $frame_size);
     
-    $current = int($atts->{'current'} || 1);
+    $current = int($args->{'current'} || 1);
     croak 'Cannot paginate without a positive current page.'
         unless $current > 0;
     
-    $frame_size = int($atts->{'frame_size'} || 10);
+    $self->{'frame_size'} = int($args->{'frame_size'} || 10);
     croak 'Cannot paginate without a positive frame size.'
-        unless $frame_size > 0;
+        unless $self->{'frame_size'} > 0;
     
-    if ($atts->{'pages'}) {
-        $pages = int($atts->{'pages'});
+    if ($args->{'pages'}) {
+        $pages = int($args->{'pages'});
     }
     else {
-        my $items_per_page = int($atts->{'items_per_page'} || 1);
-        my $items = int($atts->{'items'} || 1);
+        my $items_per_page = int($args->{'items_per_page'} || 1);
+        my $items = int($args->{'items'} || 1);
         
         croak 'Cannot paginate with non positive items'
             unless $items > 0;
@@ -180,7 +185,7 @@ sub repaginate {
     $self->{'last'}     = $pages;
     $self->{'curr'}     = $current;
     
-    my $half_frame = int(0.5 + $frame_size / 2);
+    my $half_frame = int(0.5 + $self->{'frame_size'} / 2);
     
     $self->{'prev'} = $current - 1;
     $self->{'prev'} = $self->{'prev'} > 0 ? $self->{'prev'} : 1;
@@ -188,14 +193,14 @@ sub repaginate {
     $self->{'next'} = $current + 1;
     $self->{'next'} = $self->{'next'} <= $pages ? $self->{'next'} : $pages;
     
-    if ($pages > $frame_size) {
+    if ($pages > $self->{'frame_size'}) {
         $self->{'begin'} = $current - $half_frame + 1;
         $self->{'begin'} = $self->{'begin'} > 0 ? $self->{'begin'} : 1;
-        $self->{'end'}   = $self->{'begin'} + $frame_size - 1;
+        $self->{'end'}   = $self->{'begin'} + $self->{'frame_size'} - 1;
         
         if ($self->{'end'} > $pages) {
             $self->{'end'}   = $pages;
-            $self->{'begin'} = $self->{'end'} - $frame_size + 1;
+            $self->{'begin'} = $self->{'end'} - $self->{'frame_size'} + 1;
         }
     }
     else {
@@ -230,7 +235,7 @@ sub prev {
 
 =head2 begin
 
-Accessor method to retrieve the number of first page into the frame.
+Accessor method to retrieve the beginning of the frame.
 
 =cut
 
@@ -254,7 +259,7 @@ sub curr {
 
 =head2 end
 
-Accessor method to retrieve the number of last page into the frame.
+Accessor method to retrieve the end of the frame.
 
 =cut
 
@@ -286,6 +291,18 @@ sub last {
     my $self = shift;
     
     return $self->{'last'};
+}
+
+=head2 frame_size
+
+Accessor method to retrieve the frame size.
+
+=cut
+
+sub frame_size {
+    my $self = shift;
+    
+    return $self->{'frame_size'};
 }
 
 =head1 AUTHOR
@@ -336,7 +353,7 @@ L<http://search.cpan.org/dist/Paginator-Lite/>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2009 Blabos de Blebe.
+Copyright 2011 Blabos de Blebe.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published
@@ -347,4 +364,4 @@ See http://dev.perl.org/licenses/ for more information.
 
 =cut
 
-42; # End of Paginator::Lite
+42;
