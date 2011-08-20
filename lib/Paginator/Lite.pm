@@ -11,12 +11,11 @@ Paginator::Lite - A simple paginator
 
 =head1 VERSION
 
-Version 1.00
+Version 1.02
 
 =cut
 
-our $VERSION = '1.00';
-
+our $VERSION = '1.02';
 
 =head1 SYNOPSIS
 
@@ -76,22 +75,25 @@ with the same as repaginate()
 =cut
 
 sub new {
-    my $class   = shift;
-    my $args    = shift || {};
-    my $atts    = {
-        'first'     => 1,
-        'prev'      => 1,
-        'begin'     => 1,
-        'curr'      => 1,
-        'end'       => 1,
-        'next'      => 1,
-        'last'      => 1,
+    my $class = shift;
+    my $args  = shift || {};
+    my $atts  = {
+        'first'      => 1,
+        'prev'       => 1,
+        'begin'      => 1,
+        'curr'       => 1,
+        'end'        => 1,
+        'next'       => 1,
+        'last'       => 1,
+        'frame_size' => 1,
+        'pages'      => 1,
     };
-    
+
     my $paginator = bless $atts, $class;
-    $paginator->repaginate( $args )
-        if $args->{'pages'} || ( $args->{'items'} && $args->{'frame_size'} );
-    
+    $paginator->repaginate($args)
+      if exists $args->{'pages'}
+      || ( exists $args->{'items'} && exists $args->{'frame_size'} );
+
     return $paginator;
 }
 
@@ -148,57 +150,66 @@ Example:
 =cut
 
 sub repaginate {
-    my ($self, $args) = @_;
-    my ($pages, $current, $frame_size);
-    
-    $current = int($args->{'current'} || 1);
+    my ( $self, $args ) = @_;
+    my ( $pages, $current );
+
+    $current = int( $args->{'current'} || 1 );
     croak 'Cannot paginate without a positive current page.'
-        unless $current > 0;
-    
-    $self->{'frame_size'} = int($args->{'frame_size'} || 10);
-    croak 'Cannot paginate without a positive frame size.'
-        unless $self->{'frame_size'} > 0;
-    
-    if ($args->{'pages'}) {
-        $pages = int($args->{'pages'});
+      unless $current > 0;
+
+    $self->{'frame_size'} =
+      defined $args->{'frame_size'}
+      ? int( $args->{'frame_size'} )
+      : 10;
+
+    croak 'Cannot paginate with a negative frame size.'
+      unless $self->{'frame_size'} >= 0;
+
+    if ( $args->{'pages'} ) {
+        $pages = int( $args->{'pages'} );
     }
     else {
-        my $items_per_page = int($args->{'items_per_page'} || 1);
-        my $items = int($args->{'items'} || 1);
-        
+        my $items_per_page = int( $args->{'items_per_page'} || 1 );
+        my $items          = int( $args->{'items'}          || 1 );
+
         croak 'Cannot paginate with non positive items'
-            unless $items > 0;
+          unless $items > 0;
         croak 'Cannot paginate with non positive items_per_page'
-            unless $items_per_page > 0;
-        
+          unless $items_per_page > 0;
+
         # Calculate and round up.
         my $div = $items / $items_per_page;
         $pages = int($div);
         $pages++ unless $pages == $div;
     }
     croak 'Cannot paginate without a positive number of pages.'
-        unless $pages > 0;
-    
+      unless $pages > 0;
+
     $current = $current <= $pages ? $current : 1;
-     
-    $self->{'first'}    = 1;
-    $self->{'last'}     = $pages;
-    $self->{'curr'}     = $current;
-    
-    my $half_frame = int(0.5 + $self->{'frame_size'} / 2);
-    
+
+    $self->{'first'} = 1;
+    $self->{'last'}  = $pages;
+    $self->{'curr'}  = $current;
+
+    my $half_frame = int( 0.5 + $self->{'frame_size'} / 2 );
+
     $self->{'prev'} = $current - 1;
     $self->{'prev'} = $self->{'prev'} > 0 ? $self->{'prev'} : 1;
-    
+
     $self->{'next'} = $current + 1;
     $self->{'next'} = $self->{'next'} <= $pages ? $self->{'next'} : $pages;
-    
-    if ($pages > $self->{'frame_size'}) {
+
+    $self->{'pages'} = $pages;
+
+    if ( $self->{'frame_size'} == 0 ) {
+        $self->{'begin'} = $self->{'end'} = $current;
+    }
+    elsif ( $pages > $self->{'frame_size'} ) {
         $self->{'begin'} = $current - $half_frame + 1;
         $self->{'begin'} = $self->{'begin'} > 0 ? $self->{'begin'} : 1;
         $self->{'end'}   = $self->{'begin'} + $self->{'frame_size'} - 1;
-        
-        if ($self->{'end'} > $pages) {
+
+        if ( $self->{'end'} > $pages ) {
             $self->{'end'}   = $pages;
             $self->{'begin'} = $self->{'end'} - $self->{'frame_size'} + 1;
         }
@@ -217,7 +228,7 @@ Accessor method to retrieve the number of the first one page.
 
 sub first {
     my $self = shift;
-    
+
     return $self->{'first'};
 }
 
@@ -229,7 +240,7 @@ Accessor method to retrieve the number of previous page.
 
 sub prev {
     my $self = shift;
-    
+
     return $self->{'prev'};
 }
 
@@ -241,7 +252,7 @@ Accessor method to retrieve the beginning of the frame.
 
 sub begin {
     my $self = shift;
-    
+
     return $self->{'begin'};
 }
 
@@ -253,7 +264,7 @@ Accessor method to retrieve the number of current page.
 
 sub curr {
     my $self = shift;
-    
+
     return $self->{'curr'};
 }
 
@@ -265,7 +276,7 @@ Accessor method to retrieve the end of the frame.
 
 sub end {
     my $self = shift;
-    
+
     return $self->{'end'};
 }
 
@@ -277,7 +288,7 @@ Accessor method to retrieve the number of next page.
 
 sub next {
     my $self = shift;
-    
+
     return $self->{'next'};
 }
 
@@ -289,7 +300,7 @@ Accessor method to retrieve the number of the last one page.
 
 sub last {
     my $self = shift;
-    
+
     return $self->{'last'};
 }
 
@@ -301,8 +312,20 @@ Accessor method to retrieve the frame size.
 
 sub frame_size {
     my $self = shift;
-    
+
     return $self->{'frame_size'};
+}
+
+=head2 pages
+
+Accessor method to retrieve the total number of pages
+
+=cut
+
+sub pages {
+    my $self = shift;
+
+    return $self->{'pages'};
 }
 
 =head1 AUTHOR

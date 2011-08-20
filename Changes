@@ -1,5 +1,11 @@
 Revision history for Paginator-Lite
 
+1.02    2011-08-20
+            - Added accessor pages
+
+1.01    2011-08-20
+            - Added support to frame_size = 0
+
 1.00    2011-08-20
             - First official release
             - Added args to constructor
