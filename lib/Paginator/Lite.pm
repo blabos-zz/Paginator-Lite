@@ -11,11 +11,11 @@ Paginator::Lite - A simple paginator
 
 =head1 VERSION
 
-Version 1.02
+Version 1.03
 
 =cut
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 =head1 SYNOPSIS
 
@@ -87,6 +87,7 @@ sub new {
         'last'       => 1,
         'frame_size' => 1,
         'pages'      => 1,
+        'show_ends'  => 1,
     };
 
     my $paginator = bless $atts, $class;
@@ -152,6 +153,9 @@ Example:
 sub repaginate {
     my ( $self, $args ) = @_;
     my ( $pages, $current );
+
+    $self->{'show_ends'} = $args->{'show_ends'}
+      if defined $args->{'show_ends'};
 
     $current = int( $args->{'current'} || 1 );
     croak 'Cannot paginate without a positive current page.'
@@ -326,6 +330,20 @@ sub pages {
     my $self = shift;
 
     return $self->{'pages'};
+}
+
+=head2 show_ends
+
+Returns true if you can render links to the ends (first and last), which means
+having the flag 'show_ends' set to true and the number of pages to be larger
+than the frame size. EXPERIMENTAL.
+
+=cut
+
+sub show_ends {
+    my $self = shift;
+
+    return $self->{show_ends} && $self->last >= $self->frame_size;
 }
 
 =head1 AUTHOR

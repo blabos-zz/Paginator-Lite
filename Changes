@@ -1,5 +1,8 @@
 Revision history for Paginator-Lite
 
+1.03    2011-09-27
+            - Added experimental feature 'show_ends'
+
 1.02    2011-08-20
             - Added accessor pages
 
