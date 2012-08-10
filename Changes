@@ -1,6 +1,11 @@
 Revision history for Paginator-Lite
 
-2.000000 2012-08-09
+2.0.1   2012-08-10
+            - Documentation updates
+            - Adding Moo as dependency
+            - Adding .gitignore
+
+2.0.0   2012-08-09
             - Version 2.0.0
             - Using Moo
             - New interface

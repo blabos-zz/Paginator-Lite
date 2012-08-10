@@ -9,6 +9,8 @@ README
 t/00-load.t
 t/01-constructor.t
 t/02-data.t
+t/02-pagination.t
+t/03-data.t
 t/boilerplate.t
 t/pod-coverage.t
 t/pod.t

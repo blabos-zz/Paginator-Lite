@@ -2,7 +2,7 @@ package Paginator::Lite;
 
 use Moo;
 
-our $VERSION = '2.000000';
+our $VERSION = '2.000001';
 
 has curr => (
     required => 1,
@@ -103,14 +103,12 @@ Paginator::Lite - A simple paginator
 
 =head1 VERSION
 
-Version 2.000000
+2.0.1
 
 
 =head1 SYNOPSIS
 
-This module provides a simple way to get some information about a collection
-of data (rows of the database, sometimes) that can be used to build pagination
-components.
+A simple tool to automate the creation of paging links
 
     use Paginator::Lite;
     
@@ -168,48 +166,48 @@ C<items> and C<page_size>.
 
 C<params> is a optional argument that may be used to pass arbitrary data.
 
-See more details about them in the documentation of their respective
+See more details about them in documentation of their respective
 accessors.
 
 
 =head2 base_url
 
-Returns the value of base_url. It is the same value that you must supply to
-constructor. This value will be used by the template to build the links to
+Returns the value of C<base_url>. It is the same value that you must supply
+to constructor. This value will be used by the template to build the links to
 direct pages.
 
 =head2 curr
 
-Returns the value of current page. It is the same value that you must supply
-to constructor.
+Returns the value of B<current page>. It is the same value that you must
+supply to constructor.
 
 =head2 frame_size
 
-Returns the value of frame_size. It is the same value that you must supply
-to constructor. It is also the number of pages visible around the current.
+Returns the value of C<frame_size>. It is the same value that you must supply
+to constructor. It is also the number of pages visible around current page.
 
-Usually frame_size may be calculated by:
+Usually C<frame_size> may be calculated by:
 
     my $frame_size = $pag->end - $pag->begin + 1
 
-However when current page is too close to first or last, the frame may be
-deformed but still trying to center in the current page.
+However when current page is too close to C<first> or C<last>, the frame may
+be deformed but still trying to center in the current page.
 
 =head2 page_size
 
-Returns the value of page_size. It is the same value that you must supply
+Returns the value of C<page_size>. It is the same value that you must supply
 to constructor and means the number of items that you want display in a
 single page.
 
 =head2 items
 
-Returns the value of items. It is the same value the you must provide to
+Returns the value of C<items>. It is the same value the you must provide to
 constructor and means the total number of items that you are paginating.
 
 
 =head2 first
 
-Returns the value of the first page, usually 1.
+Returns the value of the first page, usually B<1>.
 
 =head2 last
 
@@ -232,7 +230,7 @@ Returns the value of the last page of current frame.
 =head2 prev
 
 Returns the value of previous page. Usually this value is C<curr - 1>, except
-when current page is 1.
+when current page is B<1>.
 
 =head2 next
 
