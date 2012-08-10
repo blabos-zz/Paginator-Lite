@@ -1,21 +1,110 @@
 package Paginator::Lite;
 
-use warnings;
-use strict;
+use Moo;
 
-use Carp;
+our $VERSION = '2.000000';
+
+has curr => (
+    required => 1,
+    is       => 'ro',
+    isa      => sub { die "curr page must be > 0" unless $_[0] > 0 },
+);
+
+has frame_size => (
+    required => 1,
+    is       => 'ro',
+    isa      => sub { die "frame_size must be >= 0" unless $_[0] >= 0 },
+);
+
+has page_size => (
+    required => 1,
+    is       => 'ro',
+    isa      => sub { die "page_size must be > 0" unless $_[0] > 0 },
+);
+
+has items => (
+    required => 1,
+    is       => 'ro',
+    isa      => sub { die "items must be > 0" unless $_[0] > 0 },
+);
+
+has base_url => (
+    required => 1,
+    is       => 'ro',
+    isa      => sub { die "base_url must be defined" unless defined $_[0] },
+);
+
+has first => ( is => 'ro' );
+
+has prev => ( is => 'ro' );
+
+has begin => ( is => 'ro' );
+
+has end => ( is => 'ro' );
+
+has next => ( is => 'ro' );
+
+has last => ( is => 'ro' );
+
+has params => ( is => 'ro' );
+
+sub BUILD {
+    my ($self) = @_;
+
+    $self->{show_ends} = !!$self->{show_ends};
+
+    $self->{first} = 1;
+
+    $self->{last} = _ceil( $self->items / $self->page_size );
+
+    $self->{curr} = $self->{last} if $self->{curr} > $self->{last};
+
+    $self->{prev} =
+      $self->{curr} == $self->{first}
+      ? 1
+      : $self->{curr} - 1;
+
+    $self->{next} =
+        $self->{curr} == $self->{last}
+      ? $self->{last}
+      : $self->{curr} + 1;
+
+    if ( $self->frame_size > 0 ) {
+        my $half_frame = int( 0.5 + $self->frame_size / 2 );
+
+        $self->{begin} = $self->curr - $half_frame + 1;
+        $self->{begin} = $self->{first} if $self->{begin} < $self->{first};
+
+        $self->{end} = $self->curr + $half_frame - 1;
+        $self->{end} = $self->{last} if $self->{end} > $self->{last};
+    }
+    else {
+        $self->{begin} = 0;
+        $self->{end}   = -1;
+    }
+}
+
+sub _ceil {
+    my ( $val, $floor ) = @_;
+
+    $floor = int $val;
+
+    return $floor == $val ? $floor : $floor + 1;
+}
+
+return 42;
+
+=pod
 
 =head1 NAME
 
 Paginator::Lite - A simple paginator
 
+
 =head1 VERSION
 
-Version 1.03
+Version 2.000000
 
-=cut
-
-our $VERSION = '1.03';
 
 =head1 SYNOPSIS
 
@@ -26,17 +115,22 @@ components.
     use Paginator::Lite;
     
     my $paginator = Paginator::Lite->new({
-        current     => 3,
-        items       => 30,
+        curr        => 3,
+        items       => 65,
         frame_size  => 5,
+        page_size   => 10, 
+        base_url    => '/foo/items',
     });
     
     ...
     
     $paginator->first       # 1
-    $paginator->last        # 6
+    $paginator->last        # 7
+    $paginator->begin       # 1
+    $paginator->end         # 5
     $paginator->next        # 4
-    
+    $paginator->prev        # 2
+    $paginator->base_url    # '/foo/items'
     
 
 =head1 DESCRIPTION
@@ -67,296 +161,102 @@ and other permanent buttons:
 
 =head2 new
 
-Constructor. Creates a Paginator::Lite object. May be aclled without args or
-with the same as repaginate()
+Creates a Paginator::Lite object.
 
-    my $paginator = Paginator::Lite->new;
+You must provide all required arguments: C<base_url>, C<curr>, C<frame_size>,
+C<items> and C<page_size>.
 
-=cut
+C<params> is a optional argument that may be used to pass arbitrary data.
 
-sub new {
-    my $class = shift;
-    my $args  = shift || {};
-    my $atts  = {
-        'first'      => 1,
-        'prev'       => 1,
-        'begin'      => 1,
-        'curr'       => 1,
-        'end'        => 1,
-        'next'       => 1,
-        'last'       => 1,
-        'frame_size' => 1,
-        'pages'      => 1,
-        'show_ends'  => 1,
-    };
+See more details about them in the documentation of their respective
+accessors.
 
-    my $paginator = bless $atts, $class;
-    $paginator->repaginate($args)
-      if exists $args->{'pages'}
-      || ( exists $args->{'items'} && exists $args->{'frame_size'} );
 
-    return $paginator;
-}
+=head2 base_url
 
-=head2 repaginate
-
-Takes the parameters and calculates the next, previous and which pages will be
-into the frame.
-
-All parameters are optional. The module provides some default values.
-
-If you try to pass negative values, the method will kick your ass, throwing
-an exception! Therefore, be nice!
-
-If you pass the total number of pages, the method will ignore the number of
-items and the number of items per page (if one or both were provided).
-Otherwise, if you don't provide the number of pages, the method will try to
-calculate it using the number of items, the number of items per page or
-defaults values if you don't provide any.
-
-Usually you will provide the args 'current', 'frame_size' and 'pages'.
-The last one may be exchanged by the pair 'items' and 'items_per_page'.
-
-All parameter are named as follow:
-
-=over
-
-=item pages: The total number of pages.
-
-=item items: The total number of items.
-
-=item items_per_page: The number of items for each page.
-
-=item current: The number of the current page.
-
-=item frame_size: The size of frame.
-
-=back
-
-Example:
-
-    $paginator->repaginate({
-        'pages'         => 20,
-        'current'       => 13,
-        'frame_size'    => 7,
-    });
-    
-    my $first   = $paginator->first;    # $first    == 1
-    my $prev    = $paginator->prev;     # $prev     == 12
-    my $begin   = $paginator->begin;    # $begin    == 10
-    my $curr    = $paginator->curr;     # $curr     == 13
-    my $end     = $paginator->end;      # $end      == 16
-    my $last    = $paginator->last;     # $last     == 20
-    
-=cut
-
-sub repaginate {
-    my ( $self, $args ) = @_;
-    my ( $pages, $current );
-
-    $self->{'show_ends'} = $args->{'show_ends'}
-      if defined $args->{'show_ends'};
-
-    $current = int( $args->{'current'} || 1 );
-    croak 'Cannot paginate without a positive current page.'
-      unless $current > 0;
-
-    $self->{'frame_size'} =
-      defined $args->{'frame_size'}
-      ? int( $args->{'frame_size'} )
-      : 10;
-
-    croak 'Cannot paginate with a negative frame size.'
-      unless $self->{'frame_size'} >= 0;
-
-    if ( $args->{'pages'} ) {
-        $pages = int( $args->{'pages'} );
-    }
-    else {
-        my $items_per_page = int( $args->{'items_per_page'} || 1 );
-        my $items          = int( $args->{'items'}          || 1 );
-
-        croak 'Cannot paginate with non positive items'
-          unless $items > 0;
-        croak 'Cannot paginate with non positive items_per_page'
-          unless $items_per_page > 0;
-
-        # Calculate and round up.
-        my $div = $items / $items_per_page;
-        $pages = int($div);
-        $pages++ unless $pages == $div;
-    }
-    croak 'Cannot paginate without a positive number of pages.'
-      unless $pages > 0;
-
-    $current = $current <= $pages ? $current : 1;
-
-    $self->{'first'} = 1;
-    $self->{'last'}  = $pages;
-    $self->{'curr'}  = $current;
-
-    my $half_frame = int( 0.5 + $self->{'frame_size'} / 2 );
-
-    $self->{'prev'} = $current - 1;
-    $self->{'prev'} = $self->{'prev'} > 0 ? $self->{'prev'} : 1;
-
-    $self->{'next'} = $current + 1;
-    $self->{'next'} = $self->{'next'} <= $pages ? $self->{'next'} : $pages;
-
-    $self->{'pages'} = $pages;
-
-    if ( $self->{'frame_size'} == 0 ) {
-        $self->{'begin'} = $self->{'end'} = $current;
-    }
-    elsif ( $pages > $self->{'frame_size'} ) {
-        $self->{'begin'} = $current - $half_frame + 1;
-        $self->{'begin'} = $self->{'begin'} > 0 ? $self->{'begin'} : 1;
-        $self->{'end'}   = $self->{'begin'} + $self->{'frame_size'} - 1;
-
-        if ( $self->{'end'} > $pages ) {
-            $self->{'end'}   = $pages;
-            $self->{'begin'} = $self->{'end'} - $self->{'frame_size'} + 1;
-        }
-    }
-    else {
-        $self->{'begin'} = 1;
-        $self->{'end'}   = $pages;
-    }
-}
-
-=head2 first
-
-Accessor method to retrieve the number of the first one page.
-
-=cut
-
-sub first {
-    my $self = shift;
-
-    return $self->{'first'};
-}
-
-=head2 prev
-
-Accessor method to retrieve the number of previous page.
-
-=cut
-
-sub prev {
-    my $self = shift;
-
-    return $self->{'prev'};
-}
-
-=head2 begin
-
-Accessor method to retrieve the beginning of the frame.
-
-=cut
-
-sub begin {
-    my $self = shift;
-
-    return $self->{'begin'};
-}
+Returns the value of base_url. It is the same value that you must supply to
+constructor. This value will be used by the template to build the links to
+direct pages.
 
 =head2 curr
 
-Accessor method to retrieve the number of current page.
-
-=cut
-
-sub curr {
-    my $self = shift;
-
-    return $self->{'curr'};
-}
-
-=head2 end
-
-Accessor method to retrieve the end of the frame.
-
-=cut
-
-sub end {
-    my $self = shift;
-
-    return $self->{'end'};
-}
-
-=head2 next
-
-Accessor method to retrieve the number of next page.
-
-=cut
-
-sub next {
-    my $self = shift;
-
-    return $self->{'next'};
-}
-
-=head2 last
-
-Accessor method to retrieve the number of the last one page.
-
-=cut
-
-sub last {
-    my $self = shift;
-
-    return $self->{'last'};
-}
+Returns the value of current page. It is the same value that you must supply
+to constructor.
 
 =head2 frame_size
 
-Accessor method to retrieve the frame size.
+Returns the value of frame_size. It is the same value that you must supply
+to constructor. It is also the number of pages visible around the current.
 
-=cut
+Usually frame_size may be calculated by:
 
-sub frame_size {
-    my $self = shift;
+    my $frame_size = $pag->end - $pag->begin + 1
 
-    return $self->{'frame_size'};
-}
+However when current page is too close to first or last, the frame may be
+deformed but still trying to center in the current page.
 
-=head2 pages
+=head2 page_size
 
-Accessor method to retrieve the total number of pages
+Returns the value of page_size. It is the same value that you must supply
+to constructor and means the number of items that you want display in a
+single page.
 
-=cut
+=head2 items
 
-sub pages {
-    my $self = shift;
+Returns the value of items. It is the same value the you must provide to
+constructor and means the total number of items that you are paginating.
 
-    return $self->{'pages'};
-}
 
-=head2 show_ends
+=head2 first
 
-Returns true if you can render links to the ends (first and last), which means
-having the flag 'show_ends' set to true and the number of pages to be larger
-than the frame size. EXPERIMENTAL.
+Returns the value of the first page, usually 1.
 
-=cut
+=head2 last
 
-sub show_ends {
-    my $self = shift;
+Returns the value of the last page. This value is calculated by dividing the
+total amount of items by the number of items per page and then rounding up
+the result.
 
-    return $self->{show_ends} && $self->last >= $self->frame_size;
-}
+    $self->{last} = ceil( $self->items / $self->page_size );
+
+=head2 begin
+
+Returns the value of the first page of current frame. Usually you will
+iterate between C<begin> and C<end> in your view to create direct links to
+those pages.
+
+=head2 end
+
+Returns the value of the last page of current frame.
+
+=head2 prev
+
+Returns the value of previous page. Usually this value is C<curr - 1>, except
+when current page is 1.
+
+=head2 next
+
+Returns the value of next page. Usually this value is C<curr + 1>, except
+when current page is C<last>.
+
+=head2 params
+
+Returns arbitrary data passed to contructor by C<params> argument. 
+
 
 =head1 AUTHOR
 
 Blabos de Blebe, C<< <blabos at cpan.org> >>
 
+
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-paginator-lite at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Paginator-Lite>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
-
-
+Please report any bugs or feature requests to
+C<bug-paginator-lite at rt.cpan.org>, or through
+the web interface at
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Paginator-Lite>.
+I will be notified, and then you'll automatically be notified of progress
+on your bug as I make changes.
 
 
 =head1 SUPPORT
@@ -391,18 +291,17 @@ L<http://search.cpan.org/dist/Paginator-Lite/>
 
 =head1 ACKNOWLEDGEMENTS
 
+Fred Fintstone
+
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2011 Blabos de Blebe.
+Copyright 2012 Blabos de Blebe.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published
 by the Free Software Foundation; or the Artistic License.
 
-See http://dev.perl.org/licenses/ for more information.
-
+See http://dev.perl.org/licenses/ for more information. 
 
 =cut
-
-42;
