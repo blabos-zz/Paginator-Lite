@@ -1,5 +1,8 @@
 Revision history for Paginator-Lite
 
+2.0.2   2012-08-10
+            - 100% of pod coverage...
+
 2.0.1   2012-08-10
             - Documentation updates
             - Adding Moo as dependency

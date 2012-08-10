@@ -2,7 +2,7 @@ package Paginator::Lite;
 
 use Moo;
 
-our $VERSION = '2.000001';
+our $VERSION = '2.000002';
 
 has curr => (
     required => 1,
@@ -103,7 +103,7 @@ Paginator::Lite - A simple paginator
 
 =head1 VERSION
 
-2.0.1
+2.0.2
 
 
 =head1 SYNOPSIS
@@ -239,7 +239,11 @@ when current page is C<last>.
 
 =head2 params
 
-Returns arbitrary data passed to contructor by C<params> argument. 
+Returns arbitrary data passed to contructor by C<params> argument.
+
+=head2 BUILD
+
+Private. It casts the magic when building the object.
 
 
 =head1 AUTHOR
