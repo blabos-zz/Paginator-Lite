@@ -2,7 +2,7 @@ package Paginator::Lite;
 
 use Moo;
 
-our $VERSION = '2.000002';
+our $VERSION = '2.000003';
 
 has curr => (
     required => 1,
@@ -50,8 +50,6 @@ has params => ( is => 'ro' );
 
 sub BUILD {
     my ($self) = @_;
-
-    $self->{show_ends} = !!$self->{show_ends};
 
     $self->{first} = 1;
 
@@ -103,7 +101,7 @@ Paginator::Lite - A simple paginator
 
 =head1 VERSION
 
-2.0.2
+2.0.3
 
 
 =head1 SYNOPSIS

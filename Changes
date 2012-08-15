@@ -1,5 +1,8 @@
 Revision history for Paginator-Lite
 
+2.0.3   2012-08-15
+            - Removing legacy code
+
 2.0.2   2012-08-10
             - 100% of pod coverage...
 
