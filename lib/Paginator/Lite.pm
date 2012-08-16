@@ -2,7 +2,7 @@ package Paginator::Lite;
 
 use Moo;
 
-our $VERSION = '2.000003';
+our $VERSION = '2.000004';
 
 has curr => (
     required => 1,
@@ -101,7 +101,7 @@ Paginator::Lite - A simple paginator
 
 =head1 VERSION
 
-2.0.3
+2.0.4
 
 
 =head1 SYNOPSIS
@@ -291,7 +291,7 @@ L<http://search.cpan.org/dist/Paginator-Lite/>
 
 =head1 ACKNOWLEDGEMENTS
 
-Fred Fintstone
+Estante Virtual L<http://estantevirtual.com.br>
 
 
 =head1 COPYRIGHT & LICENSE
