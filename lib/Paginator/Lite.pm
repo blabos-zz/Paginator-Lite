@@ -1,8 +1,11 @@
 package Paginator::Lite;
 
+use strict;
+use warnings;
+
 use Moo;
 
-our $VERSION = '2.000004';
+our $VERSION = '2.000005';
 
 has curr => (
     required => 1,
@@ -101,7 +104,7 @@ Paginator::Lite - A simple paginator
 
 =head1 VERSION
 
-2.0.4
+2.0.5
 
 
 =head1 SYNOPSIS
