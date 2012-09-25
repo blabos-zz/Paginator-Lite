@@ -12,7 +12,7 @@ WriteMakefile(
     LICENSE            => 'perl',
     PL_FILES           => {},
     BUILD_REQUIRES     => { 'Test::More' => 0 },
-    CONFIGURE_REQUIRES => { 'ExtUtils::MakeMake' => 6.48 },
+    CONFIGURE_REQUIRES => { 'ExtUtils::MakeMaker' => 6.48 },
     PREREQ_PM          => { 'Moo' => 1.000003 },
     dist               => {
         COMPRESS => 'gzip -9f',

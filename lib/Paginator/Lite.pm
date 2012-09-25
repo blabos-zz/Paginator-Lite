@@ -5,7 +5,7 @@ use warnings;
 
 use Moo;
 
-our $VERSION = '2.000005';
+our $VERSION = '2.000006';
 
 has curr => (
     required => 1,
@@ -104,7 +104,7 @@ Paginator::Lite - A simple paginator
 
 =head1 VERSION
 
-2.0.5
+2.0.6
 
 
 =head1 SYNOPSIS
