@@ -1,2 +1,6 @@
+.DS_Store
+.includepath
+.settings
 .project
+cover_db
 MANIFEST.bak

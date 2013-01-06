@@ -1,3 +1,6 @@
+.DS_Store
+.includepath
+.settings
 blib
 Build
 _build

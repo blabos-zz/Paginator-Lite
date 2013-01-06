@@ -1,5 +1,9 @@
 Revision history for Paginator-Lite
 
+2.0.7   2013-01-06
+            - Constructor now accepts 0 items
+            - Adding Perl::Critic tests
+
 2.0.6   2012-09-25
             - Correcting typo
 

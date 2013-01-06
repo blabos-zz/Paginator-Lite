@@ -5,7 +5,7 @@ use warnings;
 
 use Moo;
 
-our $VERSION = '2.000006';
+our $VERSION = '2.000007';
 
 has curr => (
     required => 1,
@@ -28,7 +28,7 @@ has page_size => (
 has items => (
     required => 1,
     is       => 'ro',
-    isa      => sub { die "items must be > 0" unless $_[0] > 0 },
+    isa      => sub { die "items must be > 0" unless $_[0] >= 0 },
 );
 
 has base_url => (
@@ -104,7 +104,7 @@ Paginator::Lite - A simple paginator
 
 =head1 VERSION
 
-2.0.6
+2.0.7
 
 
 =head1 SYNOPSIS

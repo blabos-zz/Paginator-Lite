@@ -1,4 +1,4 @@
-#!perl -T
+#!perl
 
 use strict;
 use warnings;
@@ -16,7 +16,7 @@ try {
         base_url    => '',
         curr        => 1,
         frame_size  => 1,
-        items       => 1,
+        items       => 0,
         page_size   => 1,
     });
 }
@@ -31,7 +31,7 @@ try {
     $pag = Paginator::Lite->new({
         curr        => 1,
         frame_size  => 1,
-        items       => 1,
+        items       => 0,
         page_size   => 1,
     });
 }
@@ -46,7 +46,7 @@ try {
     $pag = Paginator::Lite->new({
         base_url    => '',
         frame_size  => 1,
-        items       => 1,
+        items       => 0,
         page_size   => 1,
     });
 }
@@ -61,7 +61,7 @@ try {
     $pag = Paginator::Lite->new({
         base_url    => '',
         curr        => 1,
-        items       => 1,
+        items       => 0,
         page_size   => 1,
     });
 }
@@ -92,7 +92,7 @@ try {
         base_url    => '',
         curr        => 1,
         frame_size  => 1,
-        items       => 1,
+        items       => 0,
     });
 }
 catch {
@@ -117,7 +117,7 @@ try {
         base_url    => '',
         curr        => -1,
         frame_size  => 1,
-        items       => 1,
+        items       => 0,
         page_size   => 1,
     });
 }
@@ -133,7 +133,7 @@ try {
         base_url    => '',
         curr        => 1,
         frame_size  => -1,
-        items       => 1,
+        items       => 0,
         page_size   => 1,
     });
 }
@@ -165,7 +165,7 @@ try {
         base_url    => '',
         curr        => 1,
         frame_size  => 1,
-        items       => 1,
+        items       => 0,
         page_size   => -1,
     });
 }

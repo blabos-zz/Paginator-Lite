@@ -11,5 +11,7 @@ t/01-constructor.t
 t/02-pagination.t
 t/03-data.t
 t/boilerplate.t
+t/perlcritic.t
+t/perlcriticrc
 t/pod-coverage.t
 t/pod.t
