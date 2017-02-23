@@ -5,8 +5,6 @@ use warnings;
 
 use Moo;
 
-our $VERSION = '2.000007';
-
 has curr => (
     required => 1,
     is       => 'ro',

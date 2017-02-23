@@ -12,3 +12,9 @@ cover_db
 MANIFEST.bak
 Makefile.old
 Makefile$
+local
+MYMETA.json
+MYMETA.yml
+cpanfile
+cpanfile.snapshot
+dist.ini
