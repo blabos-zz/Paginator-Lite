@@ -93,23 +93,24 @@ sub BUILD {
     }
 }
 
-sub first_url { shift->_custom_url('first') }
-sub prev_url  { shift->_custom_url('prev') }
-sub curr_url  { shift->_custom_url('curr') }
-sub next_url  { shift->_custom_url('next') }
-sub last_url  { shift->_custom_url('last') }
+sub first_url { $_[0]->_custom_url( $_[0]->first ) }
+sub prev_url  { $_[0]->_custom_url( $_[0]->prev ) }
+sub curr_url  { $_[0]->_custom_url( $_[0]->curr ) }
+sub next_url  { $_[0]->_custom_url( $_[0]->next ) }
+sub last_url  { $_[0]->_custom_url( $_[0]->last ) }
+sub page_url  { $_[0]->_custom_url( $_[1] ) }
 
 sub _custom_url {
-    my ( $self, $method ) = @_;
+    my ( $self, $page ) = @_;
 
     my $uri = URI->new( $self->base_url );
 
     if ( $self->mode eq 'path' ) {
-        return $uri->path . '/' . $self->$method;
+        return $uri->path . '/' . $page;
     }
     else {
         my $params = $self->params;
-        $params->{page} = $self->$method;
+        $params->{page} = $page;
         $uri->query_form($params);
         return $uri->as_string;
     }
@@ -305,6 +306,10 @@ Returns the URL of the next page.
 =head2 last_url
 
 Returns the URL of the last page.
+
+=head2 page_url( $page )
+
+Returns the URL of given page.
 
 =head2 BUILD
 
