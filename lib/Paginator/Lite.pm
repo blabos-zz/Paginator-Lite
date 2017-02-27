@@ -4,8 +4,7 @@ use strict;
 use warnings;
 
 use Moo;
-
-our $VERSION = '2.000007';
+use URI;
 
 has curr => (
     required => 1,
@@ -35,6 +34,15 @@ has base_url => (
     required => 1,
     is       => 'ro',
     isa      => sub { die "base_url must be defined" unless defined $_[0] },
+);
+
+has mode => (
+    is      => 'ro',
+    default => sub { 'path' },
+    isa     => sub {
+        my $mode = shift;
+        die "mode must be 'path' or 'query'" unless $mode =~ /path|query/;
+    },
 );
 
 has first => ( is => 'ro' );
@@ -85,6 +93,29 @@ sub BUILD {
     }
 }
 
+sub first_url { $_[0]->_custom_url( $_[0]->first ) }
+sub prev_url  { $_[0]->_custom_url( $_[0]->prev ) }
+sub curr_url  { $_[0]->_custom_url( $_[0]->curr ) }
+sub next_url  { $_[0]->_custom_url( $_[0]->next ) }
+sub last_url  { $_[0]->_custom_url( $_[0]->last ) }
+sub page_url  { $_[0]->_custom_url( $_[1] ) }
+
+sub _custom_url {
+    my ( $self, $page ) = @_;
+
+    my $uri = URI->new( $self->base_url );
+
+    if ( $self->mode eq 'path' ) {
+        return $uri->path . '/' . $page;
+    }
+    else {
+        my $params = $self->params;
+        $params->{page} = $page;
+        $uri->query_form($params);
+        return $uri->as_string;
+    }
+}
+
 sub _ceil {
     my ( $val, $floor ) = @_;
 
@@ -104,7 +135,7 @@ Paginator::Lite - A simple paginator
 
 =head1 VERSION
 
-2.0.7
+2.1.0
 
 
 =head1 SYNOPSIS
@@ -119,6 +150,10 @@ A simple tool to automate the creation of paging links
         frame_size  => 5,
         page_size   => 10, 
         base_url    => '/foo/items',
+        mode        => 'query',
+        params      => {
+            bar => 123
+        },
     });
     
     ...
@@ -130,6 +165,12 @@ A simple tool to automate the creation of paging links
     $paginator->next        # 4
     $paginator->prev        # 2
     $paginator->base_url    # '/foo/items'
+
+    $paginator->first_url   # '/foo/items?bar=123&page=1'
+    $paginator->prev_url    # '/foo/items?bar=123&page=2'
+    $paginator->curr_url    # '/foo/items?bar=123&page=3'
+    $paginator->next_url    # '/foo/items?bar=123&page=4'
+    $paginator->last_url    # '/foo/items?bar=123&page=7'
     
 
 =head1 DESCRIPTION
@@ -242,6 +283,34 @@ when current page is C<last>.
 
 Returns arbitrary data passed to contructor by C<params> argument.
 
+=head2 mode
+
+Returns the chosen mode (path or query) of resulting URLs.
+
+=head2 first_url
+
+Returns the URL of the first page.
+
+=head2 prev_url
+
+Returns the URL of the previous page.
+
+=head2 curr_url
+
+Returns the URL of the current page.
+
+=head2 next_url
+
+Returns the URL of the next page.
+
+=head2 last_url
+
+Returns the URL of the last page.
+
+=head2 page_url( $page )
+
+Returns the URL of given page.
+
 =head2 BUILD
 
 Private. It casts the magic when building the object.
@@ -290,11 +359,6 @@ L<http://cpanratings.perl.org/d/Paginator-Lite>
 L<http://search.cpan.org/dist/Paginator-Lite/>
 
 =back
-
-
-=head1 ACKNOWLEDGEMENTS
-
-Estante Virtual L<http://estantevirtual.com.br>
 
 
 =head1 COPYRIGHT & LICENSE
