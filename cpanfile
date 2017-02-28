@@ -1,4 +1,5 @@
 requires 'Moo';
+requires 'URI';
 
 on 'test' => sub {
     requires 'Test::Most';
