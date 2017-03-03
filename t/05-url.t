@@ -31,42 +31,46 @@ is( $pag->page_url(7), '/foo/bar/7',  'URL from givenpage with path mode' );
 ##############################################################################
 
 $pag = Paginator::Lite->new( %args, mode => 'query' );
-
-is(
-    $pag->first_url,
-    '/foo/bar?bar=123&foo=abc&page=1',
-    'First URL with query mode'
+my @tests = (
+    {
+        method   => 'first_url',
+        name     => 'First URL with query mode',
+        expected => URI->new('/foo/bar?bar=123&foo=abc&page=1'),
+    },
+    {
+        method   => 'prev_url',
+        name     => 'Prev URL with query mode',
+        expected => URI->new('/foo/bar?bar=123&foo=abc&page=4'),
+    },
+    {
+        method   => 'curr_url',
+        name     => 'Curr URL with query mode',
+        expected => URI->new('/foo/bar?bar=123&foo=abc&page=5'),
+    },
+    {
+        method   => 'next_url',
+        name     => 'Next URL with query mode',
+        expected => URI->new('/foo/bar?bar=123&foo=abc&page=6'),
+    },
+    {
+        method   => 'last_url',
+        name     => 'Last URL with query mode',
+        expected => URI->new('/foo/bar?bar=123&foo=abc&page=20'),
+    },
+    {
+        method   => 'page_url',
+        arg      => 7,
+        name     => 'URL for given page with query mode',
+        expected => URI->new('/foo/bar?bar=123&foo=abc&page=7'),
+    },
 );
 
-is(
-    $pag->prev_url,
-    '/foo/bar?bar=123&foo=abc&page=4',
-    'Prev URL with query mode'
-);
+foreach my $test (@tests) {
+    my $method = $test->{method};
+    my $arg    = $test->{arg};
 
-is(
-    $pag->curr_url,
-    '/foo/bar?bar=123&foo=abc&page=5',
-    'Curr URL with query mode'
-);
-
-is(
-    $pag->next_url,
-    '/foo/bar?bar=123&foo=abc&page=6',
-    'Next URL with query mode'
-);
-
-is(
-    $pag->last_url,
-    '/foo/bar?bar=123&foo=abc&page=20',
-    'Last URL with query mode'
-);
-
-is(
-    $pag->page_url(7),
-    '/foo/bar?bar=123&foo=abc&page=7',
-    'URL for given page with query mode'
-);
+    ok( $test->{expected}->eq( $pag->$method($arg) ), $test->{name} );
+}
 
 ##############################################################################
 

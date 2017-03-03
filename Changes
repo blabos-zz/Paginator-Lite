@@ -1,5 +1,11 @@
 Revision history for Paginator-Lite
 
+2.1.2   2017-03-03
+            - Fixing dependencies
+
+2.1.1   2017-02-28
+            - Fixing tests
+
 2.1.0   2017-02-23
             - Building with Dist::Zilla
             - Adding mode to select how to build URLs
