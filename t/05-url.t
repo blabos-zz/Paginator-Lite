@@ -66,10 +66,12 @@ my @tests = (
 );
 
 foreach my $test (@tests) {
-    my $method = $test->{method};
-    my $arg    = $test->{arg};
+    my $method   = $test->{method};
+    my $arg      = $test->{arg};
+    my %got      = URI->new( $pag->$method($arg) )->query_form;
+    my %expected = $test->{expected}->query_form;
 
-    ok( $test->{expected}->eq( $pag->$method($arg) ), $test->{name} );
+    is_deeply( \%got, \%expected, $test->{name} );
 }
 
 ##############################################################################

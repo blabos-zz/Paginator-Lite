@@ -1,5 +1,8 @@
 Revision history for Paginator-Lite
 
+2.1.3   2017-03-23
+            - More platform independent test
+
 2.1.2   2017-03-03
             - Fixing dependencies
 
